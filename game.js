@@ -1,4 +1,5 @@
-// Setup básico Three.js com mundo 3D e controles
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
+import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/PointerLockControls.js';
 
 let camera, scene, renderer, controls;
 let blocks = [];
@@ -33,7 +34,7 @@ function init() {
   scene.add(ambient);
 
   // Controles (pointer lock)
-  controls = new THREE.PointerLockControls(camera, document.body);
+  controls = new PointerLockControls(camera, document.body);
 
   const instructions = document.getElementById('instructions');
   instructions.addEventListener('click', () => {
@@ -138,20 +139,16 @@ const raycaster = new THREE.Raycaster();
 function onMouseDown(event){
   if(!controls.isLocked) return;
 
-  // Raycast da câmera para detectar bloco
   raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
   const intersects = raycaster.intersectObjects(blocks);
 
   if(intersects.length > 0){
     const intersect = intersects[0];
     if(event.shiftKey){
-      // Colocar bloco na face normal do bloco atingido
       const normal = intersect.face.normal;
       const pos = intersect.object.position.clone().add(normal);
 
-      // Verificar se já existe bloco aqui
       if(!blocks.some(b => b.position.equals(pos))){
-        // Criar bloco verde
         const geometry = new THREE.BoxGeometry(blockSize, blockSize, blockSize);
         const material = new THREE.MeshLambertMaterial({color: 0x228B22});
         const newBlock = new THREE.Mesh(geometry, material);
@@ -160,7 +157,6 @@ function onMouseDown(event){
         blocks.push(newBlock);
       }
     } else {
-      // Quebrar bloco
       const block = intersect.object;
       scene.remove(block);
       blocks.splice(blocks.indexOf(block), 1);
@@ -198,8 +194,7 @@ function animate(){
 
     controls.getObject().position.y += velocity.y * delta;
 
-    // CORREÇÃO DE COLISÃO COM O CHÃO
-    const minY = 0.5 + playerHeight/2; // topo do bloco do chão + metade da altura do player
+    const minY = 0.5 + playerHeight/2;
     if(controls.getObject().position.y < minY){
       velocity.y = 0;
       controls.getObject().position.y = minY;
