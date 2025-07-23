@@ -1,13 +1,11 @@
 // Setup básico Three.js com mundo 3D e controles
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/PointerLockControls.js';
-
 let camera, scene, renderer, controls;
-let world = {};
+let blocks = [];
+
 const worldSize = 10;
 const blockSize = 1;
-const blocks = [];
+const playerHeight = 1.8;
 
 let velocity = new THREE.Vector3();
 let direction = new THREE.Vector3();
@@ -35,7 +33,7 @@ function init() {
   scene.add(ambient);
 
   // Controles (pointer lock)
-  controls = new PointerLockControls(camera, document.body);
+  controls = new THREE.PointerLockControls(camera, document.body);
 
   const instructions = document.getElementById('instructions');
   instructions.addEventListener('click', () => {
@@ -54,12 +52,12 @@ function init() {
 
   // Criar mundo simples: chão e alguns blocos
   const geometry = new THREE.BoxGeometry(blockSize, blockSize, blockSize);
-  const material = new THREE.MeshLambertMaterial({color: 0x228B22}); // verde grama
   const materialDirt = new THREE.MeshLambertMaterial({color: 0x8B4513}); // marrom terra
+  const materialGrass = new THREE.MeshLambertMaterial({color: 0x228B22}); // verde grama
 
   for(let x=0; x<worldSize; x++){
     for(let z=0; z<worldSize; z++){
-      // chão
+      // chão (terra)
       let block = new THREE.Mesh(geometry, materialDirt);
       block.position.set(x*blockSize, 0, z*blockSize);
       scene.add(block);
@@ -67,7 +65,7 @@ function init() {
 
       // blocos de grama em alguns lugares
       if(Math.random() > 0.7){
-        let grassBlock = new THREE.Mesh(geometry, material);
+        let grassBlock = new THREE.Mesh(geometry, materialGrass);
         grassBlock.position.set(x*blockSize, blockSize, z*blockSize);
         scene.add(grassBlock);
         blocks.push(grassBlock);
@@ -75,7 +73,7 @@ function init() {
     }
   }
 
-  camera.position.set(worldSize/2, 2, worldSize/2);
+  camera.position.set(worldSize/2, playerHeight, worldSize/2);
 
   // Movimentação
   document.addEventListener('keydown', onKeyDown);
@@ -200,9 +198,11 @@ function animate(){
 
     controls.getObject().position.y += velocity.y * delta;
 
-    if(controls.getObject().position.y < 2){
+    // CORREÇÃO DE COLISÃO COM O CHÃO
+    const minY = 0.5 + playerHeight/2; // topo do bloco do chão + metade da altura do player
+    if(controls.getObject().position.y < minY){
       velocity.y = 0;
-      controls.getObject().position.y = 2;
+      controls.getObject().position.y = minY;
       canJump = true;
     }
 
