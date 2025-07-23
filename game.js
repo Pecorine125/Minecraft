@@ -16,7 +16,7 @@ animate();
 
 function init() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb); // céu azul
+  scene.background = new THREE.Color(0x87ceeb);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -32,7 +32,7 @@ function init() {
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
   scene.add(ambientLight);
 
-  // Texturas pixel art estilo Minecraft simples (2x blocos)
+  // Texturas pixel art estilo Minecraft simples
   const loader = new THREE.TextureLoader();
 
   const grassTexture = loader.load('https://i.imgur.com/dfKYu85.png');
@@ -43,19 +43,19 @@ function init() {
   dirtTexture.magFilter = THREE.NearestFilter;
   dirtTexture.minFilter = THREE.NearestFilter;
 
-  // Criar chão (terra com grama no topo)
   const geometry = new THREE.BoxGeometry(blockSize, blockSize, blockSize);
 
+  // Criar chão
   for (let x = 0; x < worldSize; x++) {
     for (let z = 0; z < worldSize; z++) {
-      // bloco terra (parte inferior)
+      // terra (parte inferior)
       const dirtMat = new THREE.MeshBasicMaterial({ map: dirtTexture });
       const dirtBlock = new THREE.Mesh(geometry, dirtMat);
       dirtBlock.position.set(x * blockSize, 0, z * blockSize);
       scene.add(dirtBlock);
       blocks.push(dirtBlock);
 
-      // bloco grama (topo)
+      // grama (topo)
       const grassMat = new THREE.MeshBasicMaterial({ map: grassTexture });
       const grassBlock = new THREE.Mesh(geometry, grassMat);
       grassBlock.position.set(x * blockSize, blockSize, z * blockSize);
@@ -72,9 +72,11 @@ function init() {
   instructions.addEventListener('click', () => {
     controls.lock();
   });
+
   controls.addEventListener('lock', () => {
     instructions.style.display = 'none';
   });
+
   controls.addEventListener('unlock', () => {
     instructions.style.display = '';
   });
